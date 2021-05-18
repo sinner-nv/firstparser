@@ -4,25 +4,36 @@ import requests
 import csv
 
 def in_catalog_page():
-    #num_page_cat = ''
-    page_item = ''
     ff = 'https://www.stout.ru/catalog/aksessuary-i-komplektuyushchie'
-    for page_c in range(len(category())):
-        for i in range(1):
-            #v_url = f'{category()[page_c]}?page={i}'
-            v_url = f'{ff}?page={i}'
-            response_page = requests.get(v_url)
-            page = bs(response_page.text, 'lxml')
-            # a = page.find_all('li', class_='next')
-            # if a != []:
-            bb = page.find_all('div', class_='field field-name-node-link field-type-ds field-label-hidden')
-            for p_item in bb:
-               pg = p_item.find('a').get('href')
-               page_item += f"{HOST}{pg},"
+    #ff = 'https://www.stout.ru/catalog/vodonagrevateli-0'
+    page_item = ''
+    response_page = requests.get(ff)
+    page = bs(response_page.text, 'lxml')
+    bb = page.find_all('div', class_='field field-name-node-link field-type-ds field-label-hidden')
+    for p_item in bb:
+        pg = p_item.find('a').get('href')
+        page_item += f"{HOST}{pg},"
+    len_page_item = len(page_item.split(','))
+    for i in range(len_page_item):
+        print(page_item.split(',')[i])
+        if page_item.split(',')[i] != "":
+            page_item_path = requests.get(page_item.split(',')[i])
+            page_item_cat = bs(page_item_path.text, 'lxml')
+            item_title = page_item_cat.find('h1', class_='page-header')
+            item_artcles = page_item_cat.find('div', class_='field-item even', itemprop='sku')
+            item_price_up_level = page_item_cat.find('div', class_='field field-name-commerce-price field-type-commerce-price field-label-inline clearfix clearfix')
+            item_content = page_item_cat.find('div', class_='field-content')
+            print(item_content.text)
+            # print("Название: {}".format(item_title.text))
+            # print("Артикул: {}".format(item_artcles.text))
+            # print(item_price_up_level.text)
 
-    return page_item.split(',')
+        
 
-print(in_catalog_page(),end='\n')
+
+
+
+print(in_catalog_page())
 
                  # bb = page.find_all('div', class_='field field-name-title-microdata field-type-ds field-label-hidden')
                 # pr = page.find_all('div', itemprop="offers")
