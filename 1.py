@@ -1,11 +1,11 @@
-from main import category, HOST
+from main import HOST
 from bs4 import BeautifulSoup as bs
 import requests
-import csv
+#import csv
 
 def in_catalog_page():
-    ff = 'https://www.stout.ru/catalog/aksessuary-i-komplektuyushchie'
-    #ff = 'https://www.stout.ru/catalog/vodonagrevateli-0'
+    #ff = 'https://www.stout.ru/catalog/aksessuary-i-komplektuyushchie'
+    ff = 'https://www.stout.ru/catalog/vodonagrevateli-0'
     page_item = ''
     response_page = requests.get(ff)
     page = bs(response_page.text, 'lxml')
@@ -19,11 +19,24 @@ def in_catalog_page():
         if page_item.split(',')[i] != "":
             page_item_path = requests.get(page_item.split(',')[i])
             page_item_cat = bs(page_item_path.text, 'lxml')
-            item_title = page_item_cat.find('h1', class_='page-header')
-            item_artcles = page_item_cat.find('div', class_='field-item even', itemprop='sku')
-            item_price_up_level = page_item_cat.find('div', class_='field field-name-commerce-price field-type-commerce-price field-label-inline clearfix clearfix')
-            item_content = page_item_cat.find('div', class_='field-content')
-            print(item_content.text)
+            # item_title = page_item_cat.find('h1', class_='page-header')
+            # item_artcles = page_item_cat.find('div', class_='field-item even', itemprop='sku')
+            # item_price_up_level = page_item_cat.find('div', class_='field field-name-commerce-price field-type-commerce-price field-label-inline clearfix clearfix')
+            item_content = page_item_cat.find_all(class_='views-field views-field-field-char')
+            structure_item = {}
+            for i in item_content:
+                str_a = i.find_all('div', class_='field-label')
+                str_b = i.find_all('div', class_='field-items')
+                for s_a, s_b in zip(range(len(str_a)), range(len(str_b))):
+                    print(str_a[s_a].text, str_b[s_b].text)
+
+
+
+                print(structure_item)
+
+                # str_a = i.find('div', class_='field-label').text.strip()
+                # str_b = i.find('div', class_='field-item even').text.strip()
+                # print(str_a, str_b)
             # print("Название: {}".format(item_title.text))
             # print("Артикул: {}".format(item_artcles.text))
             # print(item_price_up_level.text)
