@@ -1,7 +1,14 @@
 from main import HOST
+import openpyxl
 from bs4 import BeautifulSoup as bs
 import requests
-#import csv
+
+
+wb = openpyxl.Workbook()
+wb.create_sheet(title='List1', index=0)
+sheet = wb['List1']
+sheet.append(['Наименование', 'Артикул', 'Цена', 'Описание'])
+
 
 def in_catalog_page():
     ff = 'https://www.stout.ru/catalog/aksessuary-i-komplektuyushchie'
@@ -21,11 +28,12 @@ def in_catalog_page():
             page_item_cat = bs(page_item_path.text, 'lxml')
             item_title = page_item_cat.find('h1', class_='page-header')
             item_artcles = page_item_cat.find('div', class_='field-item even', itemprop='sku')
-            item_price_up_level = page_item_cat.find('div', class_='field field-name-commerce-price field-type-commerce-price field-label-inline clearfix clearfix')
+            item_price_up_level = page_item_cat.find('div', itemprop='offers')
             item_content = page_item_cat.find_all(class_='views-field views-field-field-char')
             print("Название: {}".format(item_title.text))
             print("Артикул: {}".format(item_artcles.text))
-            print(item_price_up_level.text)
+            print('Цена: {}p'.format(item_price_up_level.text[:-1]))
+            sheet.append([item_title.text, item_artcles.text, item_price_up_level.text[:-1]])
             for i in item_content:
                 str_a = i.find_all('div', class_='field-label')
                 str_b = i.find_all('div', class_='field-items')
@@ -39,7 +47,7 @@ def in_catalog_page():
 
 
 print(in_catalog_page())
-
+wb.save('book.xls')
                  # bb = page.find_all('div', class_='field field-name-title-microdata field-type-ds field-label-hidden')
                 # pr = page.find_all('div', itemprop="offers")
                 # art = page.find_all('div', class_='field-item even', itemprop="sku")
