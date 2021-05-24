@@ -7,7 +7,7 @@ import requests
 wb = openpyxl.Workbook()
 wb.create_sheet(title='List1', index=0)
 sheet = wb['List1']
-sheet.append(['Наименование', 'Артикул', 'Цена', 'Описание'])
+sheet.append(['Наименование', 'Артикул', 'Цена(руб.)', 'Описание'])
 
 
 def in_catalog_page():
@@ -33,12 +33,18 @@ def in_catalog_page():
             print("Название: {}".format(item_title.text))
             print("Артикул: {}".format(item_artcles.text))
             print('Цена: {}p'.format(item_price_up_level.text[:-1]))
-            sheet.append([item_title.text, item_artcles.text, item_price_up_level.text[:-1]])
+            opis = []
+            opis.append(item_title.text)
+            opis.append(item_artcles.text)
+            opis.append(item_price_up_level.text[:-1])
             for i in item_content:
                 str_a = i.find_all('div', class_='field-label')
                 str_b = i.find_all('div', class_='field-items')
                 for s_a, s_b in zip(range(len(str_a)), range(len(str_b))):
                     print(str_a[s_a].text, str_b[s_b].text)
+                    opis.append(str_a[s_a].text.replace('\xa0', ' ') + str_b[s_b].text.replace('\xa0', ' ') + " ")
+
+            sheet.append(opis)
 
 
         
