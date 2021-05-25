@@ -2,6 +2,8 @@ from main import HOST
 import openpyxl
 from bs4 import BeautifulSoup as bs
 import requests
+from PIL import Image
+from io import BytesIO
 
 
 wb = openpyxl.Workbook()
@@ -30,6 +32,10 @@ def in_catalog_page():
             item_artcles = page_item_cat.find('div', class_='field-item even', itemprop='sku')
             item_price_up_level = page_item_cat.find('div', itemprop='offers')
             item_content = page_item_cat.find_all(class_='views-field views-field-field-char')
+            item_img = page_item_cat.find('img', {"class":"image field-slideshow-image field-slideshow-image-1 img-responsive"})
+            print(item_img['src'])
+            #img_to_e = openpyxl.drawing.image.Image(item_img_resize(item_img['src']))
+            rec_img_to_ex(sheet, item_img)
             print("Название: {}".format(item_title.text))
             print("Артикул: {}".format(item_artcles.text))
             print('Цена: {}p'.format(item_price_up_level.text[:-1]))
@@ -44,41 +50,31 @@ def in_catalog_page():
                     print(str_a[s_a].text, str_b[s_b].text)
                     opis.append(str_a[s_a].text.replace('\xa0', ' ') + str_b[s_b].text.replace('\xa0', ' ') + " ")
 
-            sheet.append(opis)
+            #sheet.append(opis)
+            #sheet.add_image(img_to_e)
 
 
-        
+def item_img_resize(url, size=(100, 100)):
+    r = requests.get(url, stream=True)
+    r.raw.decode_content = True
+    img = Image.open(r.raw)
+    if size:
+        img = img.resize(size)
+    temp = BytesIO()
+    img.save(temp, format='png')
+    temp.seek(0)
+    return Image.open(temp)
 
-
-
+def rec_img_to_ex(sheet, img_url, size=(100, 100)):
+    img = openpyxl.drawing.image.Image(item_img_resize(img_url['src']))
+    row_n = sheet.max_row + 1
+    cell_addr = f'A{row_n}'
+    sheet.add_image(img)
+    sheet.row_dimensions[row_n].height = int(size[1]* .8)
+    sheet.column_dimensions['A'].width = int(size[0] * .2)
 
 print(in_catalog_page())
 wb.save('book.xls')
-                 # bb = page.find_all('div', class_='field field-name-title-microdata field-type-ds field-label-hidden')
-                # pr = page.find_all('div', itemprop="offers")
-                # art = page.find_all('div', class_='field-item even', itemprop="sku")
-                # for bbs in bb:
-                #     if bbs.text not in num_page_cat:
-                #         for prs in pr:
-                #             for atrs in art:
-                #                 print(f'Название: {bbs.text.strip()}\n'
-                #                       f'Цена: {prs.text}\n'
-                #                       f'Артикул: {atrs.text}\n'
-                #                       f'==========================')
-
-
-
-
-
-# dict_item = {}
-# for i in range(len)
-
-
-# with open('ex.csv', 'w', newline='') as file:
-#     columns = ["Link to goods"]
-#     writer = csv.DictWriter(file, fieldnames=columns)
-#     writer.writeheader()
-#     writer.writerows(dict_item)
 
 
 
